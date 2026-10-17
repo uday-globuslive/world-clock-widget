@@ -69,6 +69,20 @@ DEFAULT_CONFIG = {
     "y": 100,
 }
 
+# tzdata only has numeric abbreviations (e.g. "+08") for these zones; none observe DST.
+ZONE_ABBREVIATIONS = {
+    "America/Argentina/Buenos_Aires": "ART",
+    "America/Sao_Paulo": "BRT",
+    "Asia/Bangkok": "ICT",
+    "Asia/Colombo": "SLST",
+    "Asia/Dubai": "GST",
+    "Asia/Ho_Chi_Minh": "ICT",
+    "Asia/Kuala_Lumpur": "MYT",
+    "Asia/Riyadh": "AST",
+    "Asia/Singapore": "SGT",
+    "Europe/Istanbul": "TRT",
+}
+
 BG = "#1e1e2e"
 ROW_BG = "#2a2a3d"
 FG = "#f5f5f5"
@@ -303,9 +317,12 @@ class WorldClockWidget:
         for tz, date_lbl, time_lbl in self.rows:
             now = datetime.now(tz)
             offset = now.strftime("%z")
+            abbr = now.tzname()
+            if abbr[0] in "+-":
+                abbr = ZONE_ABBREVIATIONS.get(tz.key, "")
             time_lbl.config(text=now.strftime(time_fmt))
             date_lbl.config(text=f"{now.strftime('%a, %d %b %Y')}  \u2022  UTC{offset[:3]}:{offset[3:]}"
-                                 f"  {now.tzname()}")
+                                 f"  {abbr}".rstrip())
 
     def tick(self):
         self.update_times()
